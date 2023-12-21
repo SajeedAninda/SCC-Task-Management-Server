@@ -9,7 +9,7 @@ app.use(express.json());
 const port = 5000
 
 
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const uri = `${process.env.MONGO_URI}`;
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
@@ -48,11 +48,32 @@ async function run() {
             res.send(result);
         });
         
+        // UPDATE TASK STATUS 
+        app.patch('/updateTask/:id', async (req, res) => {
+            const taskId = req.params.id;
+            const newStatus = req.body.status;
+
+            if (!ObjectId.isValid(taskId)) {
+                return res.status(400).json({ error: 'Invalid Task ID' });
+            }
+
+            const updatedTask = await tasksCollection.findOneAndUpdate(
+                { _id: new ObjectId(taskId) },
+                { $set: { status: newStatus } },
+                { returnDocument: 'after' }
+            );
+
+            if (!updatedTask.value) {
+                return res.status(404).json({ error: 'Task not found' });
+            }
+
+            res.json({ message: 'Task updated successfully', updatedTask: updatedTask.value });
+        });
 
 
 
 
-
+        
         console.log("Pinged your deployment. You successfully connected to MongoDB!");
     } finally {
         // Ensures that the client will close when you finish/error
