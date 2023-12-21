@@ -47,7 +47,7 @@ async function run() {
             const result = await tasksCollection.find(query).toArray();
             res.send(result);
         });
-        
+
         // UPDATE TASK STATUS 
         app.patch('/updateTask/:id', async (req, res) => {
             const taskId = req.params.id;
@@ -70,10 +70,51 @@ async function run() {
             res.json({ message: 'Task updated successfully', updatedTask: updatedTask.value });
         });
 
+        // DELETE TASK FROM DASHBOARD 
+        app.delete("/deleteTask/:id", async (req, res) => {
+            const id = req.params.id;
+            const query = {
+                _id: new ObjectId(id),
+            };
+            const result = await tasksCollection.deleteOne(query);
+            res.send(result);
+        });
+
+        //   GET SINGLE TASK BY ID 
+        app.get("/getTaskbyId/:id", async (req, res) => {
+            const id = req.params.id;
+            const query = {
+                _id: new ObjectId(id),
+            };
+            const result = await tasksCollection.findOne(query);
+            res.send(result);
+        });
+
+        // UPDATE SINGLE DATA 
+        app.put("/updateTask/:id", async (req, res) => {
+            const id = req.params.id;
+            const taskData = req.body;
+            console.log(id);
+            console.log(taskData)
+            const filter = { _id: new ObjectId(id) };
+            const options = { upsert: true };
+            const updatedData = {
+              $set: {
+                title: taskData.title,
+                description: taskData.description,
+                deadline: taskData.deadline,
+                priority: taskData.priority,
+              },
+            };
+            const result = await tasksCollection.updateOne(
+              filter,
+              updatedData,
+              options
+            );
+            res.send(result);
+          });
 
 
-
-        
         console.log("Pinged your deployment. You successfully connected to MongoDB!");
     } finally {
         // Ensures that the client will close when you finish/error
