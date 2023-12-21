@@ -14,37 +14,59 @@ const uri = `${process.env.MONGO_URI}`;
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
 const client = new MongoClient(uri, {
-  serverApi: {
-    version: ServerApiVersion.v1,
-    strict: true,
-    deprecationErrors: true,
-  }
+    serverApi: {
+        version: ServerApiVersion.v1,
+        strict: true,
+        deprecationErrors: true,
+    }
 });
 
 async function run() {
-  try {
-    // Connect the client to the server	(optional starting in v4.7)
-    // await client.connect();
-    // Send a ping to confirm a successful connection
-    // await client.db("admin").command({ ping: 1 });
+    try {
+        // Connect the client to the server	(optional starting in v4.7)
+        // await client.connect();
+        // Send a ping to confirm a successful connection
+        // await client.db("admin").command({ ping: 1 });
+        const tasksCollection = client.db("TaskManagement").collection("tasks");
+
+        //Add new tasks to taskCollection
+
+        app.post("/createTask", async (req, res) => {
+            const tasks = req.body;
+            const result = await tasksCollection.insertOne(tasks);
+            res.send(result);
+        });
+
+        // GET TASKS BY SPECIFIC USER 
+
+        app.get("/getTasks/:email", async (req, res) => {
+            const email = req.params.email;
+            const query = {
+                email: email
+            };
+            const result = await tasksCollection.find(query).toArray();
+            res.send(result);
+        });
+        
 
 
 
-    
-    console.log("Pinged your deployment. You successfully connected to MongoDB!");
-  } finally {
-    // Ensures that the client will close when you finish/error
-    // await client.close();
-  }
+
+
+        console.log("Pinged your deployment. You successfully connected to MongoDB!");
+    } finally {
+        // Ensures that the client will close when you finish/error
+        // await client.close();
+    }
 }
 run().catch(console.dir);
 
 
 
 app.get('/', (req, res) => {
-  res.send('Task Management Server!')
+    res.send('Task Management Server!')
 })
 
 app.listen(port, () => {
-  console.log(`Example app listening on port ${port}`)
+    console.log(`Example app listening on port ${port}`)
 })
