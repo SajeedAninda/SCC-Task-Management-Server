@@ -4,7 +4,7 @@ let cors = require("cors");
 const app = express()
 
 app.use(cors({
-    origin: ['http://localhost:5173', 'http://localhost:5174']
+    origin: ['https://task-management-sajeed.netlify.app', 'http://localhost:5173', 'http://localhost:5174']
 }));
 app.use(express.json());
 
@@ -101,20 +101,20 @@ async function run() {
             const filter = { _id: new ObjectId(id) };
             const options = { upsert: true };
             const updatedData = {
-              $set: {
-                title: taskData.title,
-                description: taskData.description,
-                deadline: taskData.deadline,
-                priority: taskData.priority,
-              },
+                $set: {
+                    title: taskData.title,
+                    description: taskData.description,
+                    deadline: taskData.deadline,
+                    priority: taskData.priority,
+                },
             };
             const result = await tasksCollection.updateOne(
-              filter,
-              updatedData,
-              options
+                filter,
+                updatedData,
+                options
             );
             res.send(result);
-          });
+        });
 
 
         console.log("Pinged your deployment. You successfully connected to MongoDB!");
